@@ -14,3 +14,7 @@ https://medium.com/@leighmurray_10641/creating-a-spotify-playlist-with-python-7f
 
 This article describes the process of getting a token to interact with the Spotify API, as well as the 
 method to search for and get songs for artists which was a huge help in writing my script.
+
+To install spotipy, open the cmd in Windows in admin mode. Use the command:
+"pip install spotipy"
+and pip should isntall it for you.
