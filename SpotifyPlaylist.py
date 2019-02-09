@@ -11,30 +11,30 @@ client_id = "client_id"
 client_secret = "client_secret"
 redirect_uri = "https://localhost:8080"
 
-def get_top_songs_for_artist(artist, song_count=1):
+def getSongURIs(artist, song_count=1):
 	# Method returns top 3 songs from artist
-	song_ids = []
-	artist_results = sp.search(q='artist:' + artist, type='artist', limit=1)
+	songIds = []
+	results = sp.search(q='artist:' + artist, type='artist', limit=1)
 
-	if artist_results['artists']['total']:
+	if results['artists']['total']:
 		# Gives us the artist's tracks and the length of that list
-		artist_id = artist_results['artists']['items'][0]['id']
-		artist_top_tracks = sp.artist_top_tracks(artist_id)
-		artist_top_tracks_length = len(artist_top_tracks['tracks'])
+		artist_id = results['artists']['items'][0]['id']
+		topTracks = sp.topTracks(artist_id)
+		length = len(topTracks['tracks'])
 	else:
 		#Prints the name of an artist if they are not on Spotify
 		print(artist)
-		return song_ids
+		return songIds
 
 	# Adds the song URIs to our array before exiting the method
-	for x in range(0, artist_top_tracks_length if song_count > artist_top_tracks_length else song_count):
-		song_ids.append(artist_top_tracks['tracks'][x]['id'])
+	for x in range(0, length if song_count > length else song_count):
+		songIds.append(artist_top_tracks['tracks'][x]['id'])
 
 
-	return song_ids
+	return songIds
 
-def get_youtube_tracks():
-	all_track_ids = []
+def createPlaylist():
+	trackIds = []
 	artists = [
 		'BTS', 
 		'BLACKPINK',
@@ -67,21 +67,21 @@ def get_youtube_tracks():
 		'GOT7']
 
 	# Loops through the list of artist names
-	for i, current_artist in enumerate(artists):
-		api_track_add_limit = 100
-		top_song_limit_per_artist = 3
+	for i, currentArtist in enumerate(artists):
+		addLimit = 100
+		songLimit = 3
 
 		# Calls the first method we defined for each artist in our list "artists"
-		top_artist_songs = get_top_songs_for_artist(current_artist, top_song_limit_per_artist)
-		all_track_ids.extend(top_artist_songs) #Changed to extend method, .append() caused problems if song_ids was empty when artist was not on Spotify
+		topSongs = getSongURIs(currentArtist, songLimit)
+		trackIds.extend(topSongs) #Changed to extend method, .append() caused problems if songIds was empty when artist was not on Spotify
 
 
 	# Adding our limit of 100 songs to the playlist using the method from spotipy passing in our list of song URIs
-	if len(all_track_ids) + top_song_limit_per_artist > api_track_add_limit or (i == len(artists)-1 and len(all_track_ids)):
-		sp.user_playlist_add_tracks(user=username, playlist_id=playlist_id, tracks=all_track_ids)
+	if len(trackIds) + songLimit > addLimit or (i == len(artists)-1 and len(trackIds)):
+		sp.user_playlist_add_tracks(user=username, playlist_id=playlist_id, tracks=trackIds)
 		
 	# After the playlist is created we clear the array
-	all_track_ids = []
+	trackIds = []
 
 # Prompts spotify for a token to interact with the API based on the following credentials
 # Spotify will ask you to provide the URL you are redirected to as a verification measure. This is set in your project page on the Spotify developer's site
@@ -94,6 +94,6 @@ token = util.prompt_for_user_token(username,
 # If token is validated then the main application logic executes with the below method call
 if token:
 	sp = spotipy.Spotify(auth=token)
-	get_youtube_tracks()
+	createPlaylist()
 else:
 	print("Can't get token for", username)
